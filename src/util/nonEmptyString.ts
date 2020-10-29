@@ -1,0 +1,1 @@
+export const nonEmptyString = (s?: string) => s && s.length > 0
