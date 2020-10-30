@@ -16,6 +16,11 @@ export class VoiceHandler {
 
     static initializeAudio = async () => {
         VoiceHandler.stream = await navigator.mediaDevices.getUserMedia ({ audio: { advanced: [{ channelCount: 1 }] } })
+
+        const audioContext = new AudioContext()
+        const source = audioContext.createMediaStreamSource(VoiceHandler.stream)
+        const recorder = new Recorder(source, { numChannels: 1 })
+        VoiceHandler.recorder = recorder
     }
 
     static startListening = () => {
@@ -35,7 +40,8 @@ export class VoiceHandler {
         recognition.onresult = async (event) => {
             if (event.results[0].isFinal) {
                 recognition.stop()
-                await VoiceHandler.onResult(event.results[0][0].transcript)
+                try { await VoiceHandler.onResult(event.results[0][0].transcript) } catch (e) {}
+                recognition.start()
             } else {
                 VoiceHandler.onIntermediate(event.results[0][0].transcript, (event.results[1] && event.results[1][0].transcript) || '')
             }
@@ -43,10 +49,8 @@ export class VoiceHandler {
     }
 
     static startAudioCapture = async () => {
-        const audioContext = new AudioContext()
-        const source = audioContext.createMediaStreamSource(VoiceHandler.stream)
-        const recorder = new Recorder(source, { numChannels: 1 })
-        VoiceHandler.recorder = recorder
+        const recorder = VoiceHandler.recorder
+        try { recorder.stop(); recorder.clear() } catch (e) {}
         recorder.record()
     }
 
@@ -75,7 +79,6 @@ export class VoiceHandler {
         
         setLoading(false)
         setUtterance({ })
-        VoiceHandler.recognition.start()
     }
 
     static onIntermediate = (confirmed: string, intermediate: string) => {
