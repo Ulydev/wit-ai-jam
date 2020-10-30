@@ -1,6 +1,7 @@
 import "speech-polyfill/dist/speech-polyfill.js"
 
 import store from "../state/store"
+import { BrowserController } from "./BrowserController"
 import { NotificationSystem } from "./NotificationSystem"
 import { wait } from "./wait"
 import { WitInteraction } from "./WitInteraction"
@@ -66,7 +67,7 @@ export class VoiceHandler {
         try {
             const command = await WitInteraction.processAudio(blob)
             setUtterance({ final: command.text })
-            await WitInteraction.executeCommand(command)
+            await BrowserController.executeCommand(command)
         } catch (e) {
             NotificationSystem.error(e.toString())
         }
