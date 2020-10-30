@@ -7,7 +7,7 @@ export interface Command {
 export class BrowserController {
 
     static executeCommand = async (command: Command) => {
-        window.parent.postMessage({ type: "EXECUTE_COMMAND", command: { intents: ["scroll"] } }, "*")
+        window.parent.postMessage({ type: "EXECUTE_COMMAND", command }, "*")
     }
 
 }
